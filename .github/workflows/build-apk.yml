@@ -1,0 +1,32 @@
+name: Build Word Counter APK
+
+# Runs on a GitHub server, so your own PC does no compiling.
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch: # lets you start a build manually from the Actions tab
+
+jobs:
+  build-android:
+    name: Build APK with Buildozer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          command: buildozer android debug
+          workdir: .
+          buildozer_version: stable
+          repository_root: .
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: word-counter-apk
+          path: ${{ steps.buildozer.outputs.filename }}
+          if-no-files-found: error
